@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Golden Signals Pro - Live Trading Alerts</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Arial', sans-serif; }
+        body { 
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%); 
+            color: #ffffff; 
+            min-height: 100vh; 
+            padding: 20px;
+            direction: ltr;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .header { 
+            text-align: center; 
+            padding: 40px 0; 
+            margin-bottom: 30px; 
+            background: linear-gradient(90deg, #FFD700 0%, #FFA500 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            border-bottom: 2px solid #333;
+        }
+        
+        .header h1 { 
+            font-size: 2.8em; 
+            margin-bottom: 10px; 
+            text-shadow: 0 0 30px rgba(255, 215, 0, 0.3);
+        }
+        
+        .header .subtitle { 
+            font-size: 1.3em; 
+            color: #cccccc; 
+            font-weight: 300;
+        }
+        
+        .stats { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); 
+            gap: 20px; 
+            margin-bottom: 40px; 
+        }
+        
+        .stat-card { 
+            background: rgba(255, 215, 0, 0.1); 
+            padding: 25px; 
+            border-radius: 15px; 
+            text-align: center; 
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            backdrop-filter: blur(10px);
+            transition: transform 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .stat-card .number { 
+            font-size: 2.2em; 
+            font-weight: bold; 
+            color: #FFD700; 
+            margin-bottom: 8px; 
+        }
+        
+        .stat-card div:last-child {
+            color: #cccccc;
+            font-size: 1.1em;
+        }
+        
+        .signal { 
+            background: rgba(255, 255, 255, 0.08); 
+            border-radius: 15px; 
+            padding: 25px; 
+            margin-bottom: 25px; 
+            border-left: 5px solid #FFD700;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .signal:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(255, 215, 0, 0.2);
+        }
+        
+        .signal.buy { 
+            border-left-color: #00ff00; 
+            background: rgba(0, 255, 0, 0.05); 
+        }
+        
+        .signal.sell { 
+            border-left-color: #ff0000; 
+            background: rgba(255, 0, 0, 0.05); 
+        }
+        
+        .signal-header { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            margin-bottom: 20px; 
+            flex-wrap: wrap; 
+            gap: 15px; 
+        }
+        
+        .signal-type { 
+            font-size: 1.4em; 
+            font-weight: bold; 
+            display: flex; 
+            align-items: center; 
+            gap: 12px; 
+        }
+        
+        .signal-type.buy { color: #00ff00; }
+        .signal-type.sell { color: #ff0000; }
+        
+        .signal-time { 
+            color: #cccccc; 
+            font-size: 1em; 
+            background: rgba(255, 255, 255, 0.1); 
+            padding: 8px 15px; 
+            border-radius: 20px; 
+            font-family: monospace;
+        }
+        
+        .signal-details { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); 
+            gap: 15px; 
+            margin-bottom: 20px; 
+        }
+        
+        .detail-item { 
+            display: flex; 
+            align-items: center; 
+            gap: 12px; 
+            padding: 12px; 
+            background: rgba(255, 255, 255, 0.05); 
+            border-radius: 10px; 
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .detail-item .icon {
+            font-size: 1.3em;
+            width: 30px;
+            text-align: center;
+        }
+        
+        .detail-item strong {
+            color: #FFD700;
+            font-weight: bold;
+        }
+        
+        .signal-status {
+            padding: 12px;
+            border-radius: 10px;
+            margin-top: 15px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+        
+        .status-active { 
+            background: rgba(0, 255, 0, 0.15); 
+            border: 1px solid #00ff00; 
+            color: #00ff00;
+        }
+        
+        .status-success { 
+            background: rgba(255, 215, 0, 0.15); 
+            border: 1px solid #FFD700; 
+            color: #FFD700;
+        }
+        
+        .status-failed { 
+            background: rgba(255, 0, 0, 0.15); 
+            border: 1px solid #ff0000; 
+            color: #ff0000;
+        }
+        
+        .flash { 
+            animation: flash 1.5s infinite; 
+        }
+        
+        @keyframes flash { 
+            0%, 100% { opacity: 1; } 
+            50% { opacity: 0.6; } 
+        }
+        
+        .new-badge { 
+            background: linear-gradient(45deg, #ff4444, #ff6666); 
+            color: white; 
+            padding: 4px 12px; 
+            border-radius: 15px; 
+            font-size: 0.8em; 
+            font-weight: bold;
+            animation: pulse 1s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        .refresh-info {
+            text-align: center;
+            color: #888;
+            margin-top: 30px;
+            font-size: 0.9em;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header h1 { font-size: 2em; }
+            .signal-header { flex-direction: column; align-items: flex-start; }
+            .signal-details { grid-template-columns: 1fr; }
+            .stats { grid-template-columns: repeat(2, 1fr); }
+        }
+        
+        @media (max-width: 480px) {
+            .stats { grid-template-columns: 1fr; }
+            .header h1 { font-size: 1.8em; }
+            .signal-type { font-size: 1.2em; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Golden Signals Pro 🏆</h1>
+            <div class="subtitle">Live Trading Alerts with High Speed Execution ⚡</div>
+        </div>
+
+        <div class="stats">
+            <div class="stat-card">
+                <div class="number" id="todaySignals">0</div>
+                <div>Today's Signals</div>
+            </div>
+            <div class="stat-card">
+                <div class="number" id="successRate">0%</div>
+                <div>Success Rate</div>
+            </div>
+            <div class="stat-card">
+                <div class="number" id="avgSpeed">0s</div>
+                <div>Avg Speed</div>
+            </div>
+            <div class="stat-card">
+                <div class="number" id="totalPips">0</div>
+                <div>Total Pips</div>
+            </div>
+        </div>
+
+        <div id="signalsContainer">
+            <!-- Signals will appear here automatically -->
+        </div>
+
+        <div class="refresh-info">
+            🔄 Page auto-refreshes every 10 seconds
+        </div>
+    </div>
+
+    <script>
+        // Sample signals data (will be replaced with real data from MQL5)
+        const sampleSignals = [
+            {
+                type: "BUY",
+                symbol: "EURUSD",
+                entry: 1.08545,
+                sl: 1.08345,
+                tp: 1.08945,
+                volume: 0.15,
+                time: "14:30:25",
+                status: "active"
+            },
+            {
+                type: "SELL", 
+                symbol: "GBPUSD",
+                entry: 1.26780,
+                sl: 1.27080,
+                tp: 1.26280,
+                volume: 0.12,
+                time: "14:15:10",
+                status: "success"
+            }
+        ];
+
+        function displaySignals() {
+            const container = document.getElementById('signalsContainer');
+            container.innerHTML = '';
+
+            sampleSignals.forEach(signal => {
+                const signalDiv = document.createElement('div');
+                signalDiv.className = `signal ${signal.type.toLowerCase()} ${signal.status === 'active' ? 'flash' : ''}`;
+                
+                signalDiv.innerHTML = `
+                    <div class="signal-header">
+                        <div class="signal-type ${signal.type.toLowerCase()}">
+                            <span>🎯 ${signal.type} SIGNAL ${signal.status === 'active' ? '<span class="new-badge">LIVE</span>' : ''}</span>
+                        </div>
+                        <div class="signal-time">🕒 ${signal.time} - ${signal.status === 'active' ? 'Just now' : '5 min ago'}</div>
+                    </div>
+                    
+                    <div class="signal-details">
+                        <div class="detail-item">
+                            <span class="icon">💹</span>
+                            <span>${signal.symbol} - M5 Timeframe</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="icon">💰</span>
+                            <span>Entry: <strong>${signal.entry}</strong></span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="icon">🛑</span>
+                            <span>Stop Loss: <strong>${signal.sl}</strong></span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="icon">🎯</span>
+                            <span>Take Profit: <strong>${signal.tp}</strong></span>
+                        </div>
+                    </div>
+                    
+                    <div class="signal-details">
+                        <div class="detail-item">
+                            <span class="icon">📈</span>
+                            <span>Volume: <strong>${signal.volume} Lot</strong></span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="icon">⚡</span>
+                            <span>Risk: <strong>1% Account</strong></span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="icon">⏱️</span>
+                            <span>Target Time: <strong>15-30 min</strong></span>
+                        </div>
+                    </div>
+                    
+                    <div class="signal-status status-${signal.status}">
+                        ${signal.status === 'active' ? '🟢 ACTIVE - Waiting for target' : 
+                          signal.status === 'success' ? '💰 SUCCESS - Target Reached (+45 pips)' : 
+                          '❌ STOPPED - SL Hit (-20 pips)'}
+                    </div>
+                `;
+                
+                container.appendChild(signalDiv);
+            });
+
+            // Update stats
+            document.getElementById('todaySignals').textContent = sampleSignals.length;
+            document.getElementById('successRate').textContent = '75%';
+            document.getElementById('avgSpeed').textContent = '2.3s';
+            document.getElementById('totalPips').textContent = '+230';
+        }
+
+        // Initial display
+        displaySignals();
+
+        // Auto-refresh every 10 seconds
+        setInterval(displaySignals, 10000);
+    </script>
+</body>
+</html>
